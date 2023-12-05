@@ -28,14 +28,14 @@ const infoUrl = ref<string>('')
 const frameUrl = ref<string>('')
 
 // 转base64
-const fileToBase64 = (file) => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.readAsDataURL(file)
-    reader.onload = () => resolve(reader.result)
-    reader.onerror = (error) => reject(error)
-  })
-}
+// const fileToBase64 = (file) => {
+//   return new Promise((resolve, reject) => {
+//     const reader = new FileReader()
+//     reader.readAsDataURL(file)
+//     reader.onload = () => resolve(reader.result)
+//     reader.onerror = (error) => reject(error)
+//   })
+// }
 // 接收文件上传事件
 const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
   file.value = event.target.files[0]
@@ -52,15 +52,9 @@ const handleFileUpload = () => {
       const uploadUrl = response.data.url  // 返回 uploadUrl
       console.log('url:', uploadUrl)
       if (uploadUrl) {
-        // 使用获取到的 uploadUrl 进行文件上传
-        fileToBase64(file.value)
-          .then((base64Data) => {
-            // console.log('文件转换成 base64 数据:', base64Data)
-            const formData = new FormData()
-            formData.append('file', file.value)
             // 上传到MinIO
             axios
-              .put(uploadUrl, formData, {
+              .put(uploadUrl, file.value, {
                 headers: {
                   'Content-Type': 'multipart/form-data',
                 },
@@ -76,7 +70,7 @@ const handleFileUpload = () => {
                 axios
                   .post('http://127.0.0.1:8081/minio/upload_success', { status: response.status, url: uploadUrl })
                   .then((response) => {
-                    downloadUrl.value = 'http://127.0.0.1:9000/vuetest/mov1.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=KB937TUUMTQOL1X91G4U%2F20231205%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20231205T085051Z&X-Amz-Expires=604800&X-Amz-Security-Token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NLZXkiOiJLQjkzN1RVVU1UUU9MMVg5MUc0VSIsImV4cCI6MTcwMTc4ODAxNSwicGFyZW50IjoiYWRtaW4ifQ.DRbrriI_IzfgSYrCtcSJ1dp6Eu3S0WPI2AdGXwklsdaFP5fgLjjcEue2ZIJlKkXq1nwhUUQp5QD3zYDR93cqZQ&X-Amz-SignedHeaders=host&versionId=null&X-Amz-Signature=97301dc639b86c122b9719bc58e9a4ab23157a9020266331262e14ac58daecc6'
+                    downloadUrl.value = 'http://127.0.0.1:9000/vuetest/Gen-2%208s%2C%203955218527%2C%20A%20beautiful%20flower%20s%2C%20M%2010.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=HVYVYULY5HZACYL1S4NQ%2F20231205%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20231205T151059Z&X-Amz-Expires=604800&X-Amz-Security-Token=eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3NLZXkiOiJIVllWWVVMWTVIWkFDWUwxUzROUSIsImV4cCI6MTcwMTgzMTQ5NywicGFyZW50IjoiYWRtaW4ifQ.2wfKnGVGpDEOZldb0TPKBWWZbnru1YmCKB0YKymOfPTZ-1FvssmiDyQRpH8yjDZh1iSP7MbdaGndrzkBT393OQ&X-Amz-SignedHeaders=host&versionId=null&X-Amz-Signature=f236f5bb4d61c0791d6f510ce3854ccd832224f04b60cbb28e95764f00c47aa9'
                     console.log(response)
                     if (downloadUrl.value) {
                       console.log('下载链接: ', downloadUrl.value)
@@ -95,11 +89,7 @@ const handleFileUpload = () => {
               .catch((error) => {
                 console.error('文件上传失败', error)
               });
-          })
-          .catch((error) => {
-            console.error('文件转换成 base64 数据时出错:', error)
-          })
-      } else {
+          } else {
         console.error('未能获取上传文件链接')
       }
     })
